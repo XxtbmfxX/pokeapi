@@ -1,0 +1,6 @@
+.PokeStats {
+  @apply grid md:px-20;
+  span {
+    @apply block;
+  }
+}

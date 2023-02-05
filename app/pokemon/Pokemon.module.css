@@ -1,0 +1,3 @@
+.PokePage {
+  @apply flex flex-col items-center bg-teal-200;
+}
