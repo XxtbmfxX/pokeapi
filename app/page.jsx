@@ -1,30 +1,51 @@
-"use client";
+import PokeCard from "./pokemon/PokeCard";
 
-import { useEffect, useRef, useState } from "react";
-import PokeCard from "./dashboard/PokeCard";
-import axios from "axios";
+async function getImage(id) {
+  const res = await fetch("https://pokeapi.co/api/v2/pokemon", {
+    cache: "no-store",
+  });
+  const data = await res.json();
+}
 
-export default function HomePage() {
-  const [pokemons, setPokemons] = useState([]);
+async function getPokemons() {
+  const res = await fetch("https://pokeapi.co/api/v2/pokemon", {
+    cache: "no-store",
+  });
+  const data = await res.json();
 
-  useEffect(() => {
-    axios
-      .get("https://pokeapi.co/api/v2/pokemon/")
-      .then((res) => {
-        setPokemons(res.data.results);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+  return data.results;
+}
+
+export default async function HomePage() {
+  const pokemonList = await getPokemons();
+
+  // const handleLoadMore = useCallback(() => {
+  //   fetch(nextPage)
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setPokemonList((prevList) => [...prevList, ...data.results]);
+  //       setNextPage(data.next);
+  //     })
+  //     .catch((error) => console.error(error));
+  // }, [nextPage]);
 
   return (
-    <main className="Main">
-      <article className="grid grid-cols-2 gap-2 p-2">
-        {pokemons.map((pokemon, index) => (
-          <PokeCard key={index} pokemon={pokemon} />
+    <main className="Main ">
+      <h1 className=" w-3/4 font-bold m-4 text-3xl ">Pokedex</h1>
+      <ul className=" w-11/12 mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+        {pokemonList?.map((pokemon) => (
+          <li key={pokemon.name}>
+            <PokeCard url={pokemon.url} />
+          </li>
         ))}
-      </article>
+      </ul>
+      {/* {nextPage && (
+        <button
+          className="p-2 bg-blue-300  my-10  w-3/4 rounded-lg "
+          onClick={handleLoadMore}>
+          Load More
+        </button>
+      )} */}
     </main>
   );
 }
