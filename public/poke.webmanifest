@@ -1,0 +1,16 @@
+{
+  "name": "PokeApi",
+  "short_name": "PokeApi",
+  "start_url": "/",
+  "display": "Just some fun",
+  "background_color": "#f2f2f2",
+  "theme_color": "#f2f2f2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    }
+  ]
+}

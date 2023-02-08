@@ -5,40 +5,23 @@ import Stats from "@/app/pokemon/Stats";
 //get all the params needed from the specific urls
 //it was the samplest way ._.)
 
-async function getEvolution(id) {
-  const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`, {
-    cache: "no-store",
-  });
-  const data = await res.json();
-
-  const EvlUrl = data.evolution_chain.url;
-
-  const EvlRes = await fetch(EvlUrl, {
-    cache: "no-store",
-  });
-
-  const EvData = await EvlRes.json();
-
-  console.log(
-    "----------------------------------------------------------------"
-  );
-  console.log(EvData.chain.evo);
-  console.log(
-    "----------------------------------------------------------------"
-  );
-
-  return "evolutions";
-}
-
 async function getDescription(id) {
-  const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`, {
-    cache: "no-store",
-  });
-  const data = await res.json();
-  const description = data.flavor_text_entries.find(
-    (entry) => entry.language.name === "en"
-  ).flavor_text;
-  return description;
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`, {
+      cache: "no-store",
+    });
+
+    debugger;
+    const data = await res.json();
+
+    if (data.flavor_text_entries != []) {
+      return data.flavor_text_entries[0].flavor_text;
+    } else {
+      return "(^人^)";
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function getPokemon(id) {
@@ -113,16 +96,21 @@ const getColorType = (type) => {
 export default async function NotesPage({ params }) {
   const pokemon = await getPokemon(params.id);
   const description = await getDescription(params.id);
-  const evolutions = await getEvolution(params.id);
 
   let colorClass = getColorType(pokemon.types[0].type.name);
 
   return (
     <main className={`flex flex-col items-center ${colorClass}`}>
-      <header className={`flex justify-between w-full p-2 mb-8 ${colorClass}`}>
+      <header
+        className={`flex justify-between w-full p-10 pb-0 mb-2 ${colorClass}`}>
         <Link href="/">
-          <span className="material-symbols-outlined">arrow_back</span>
+          <span className="material-symbols-outlined text-3xl ">
+            arrow_back
+          </span>
         </Link>
+        <span className="text-yellow-50 text-xl">
+          #{("000" + pokemon.id).slice(-4)}{" "}
+        </span>
       </header>
       <img
         className="rounded-3xl w-3/4 z-10"
@@ -133,27 +121,27 @@ export default async function NotesPage({ params }) {
       <article
         style={{ marginTop: "-50px" }}
         className={`PokePage_stats rounded-t-3xl bg-slate-50 w-full p-5  `}>
-        <section className="Stats_text my-10 flex flex-col items-center justify-center pt-5 ">
-          <h1 className="text-3xl w-full text-center mb-4 capitalize ">
+        <section className="Stats_text m-10 flex flex-col items-center justify-center pt-5 ">
+          <h1 className="text-3xl w-full text-center  capitalize ">
             {pokemon.name}
           </h1>
+          <div className="flex">
+            {pokemon.types.map((t) => (
+              <span
+                style={{ width: "auto" }}
+                className={`text-center capitalize p-1 px-3 m-2 ${getColorType(
+                  t.type.name
+                )} rounded-full w-1/3 drop-shadow-md text-white `}>
+                {t.type.name}
+              </span>
+            ))}
+          </div>
 
-          {pokemon.types.map((t) => (
-            <span
-              className={`text-center capitalize ${colorClass} rounded-full w-1/3 drop-shadow-md text-white `}>
-              {t.type.name}
-            </span>
-          ))}
-
-          <p className="mt-5 p-2 text-center">{description}</p>
+          <p className="mt-5 p-2 text-center  text-gray-800 ">{description}</p>
         </section>
 
-        <Stats evolutions={pokemon.abilities} />
+        <Stats stats={pokemon.stats} color={colorClass} />
       </article>
-
-      {/* {evolutions.map((evolution) => (
-        <li key={evolution}>{evolution}</li>
-      ))} */}
     </main>
   );
 }

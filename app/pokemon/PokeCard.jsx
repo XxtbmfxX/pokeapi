@@ -1,19 +1,26 @@
+"use client";
+
+import axios from "axios";
 import Link from "next/link";
-
-async function getData(url) {
-  const res = await fetch(url, {
-    cache: "no-store",
-  });
-
-  const data = await res.json();
-
-  return data;
-}
+import { useEffect, useState } from "react";
 
 let colorClass = "";
 
-export default async function PokeCard({ url }) {
-  const pokeData = await getData(url);
+export default function PokeCard({ url }) {
+  const [pokeData, setpokeData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [clicked, setclicked] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const res = await axios.get(url);
+      setpokeData(res.data);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [url]);
 
   const getColorType = (type) => {
     switch (type) {
@@ -76,35 +83,53 @@ export default async function PokeCard({ url }) {
     }
   };
 
-  colorClass = getColorType(pokeData.types[0].type.name);
+  if (pokeData != null) {
+    colorClass = getColorType(pokeData.types[0].type.name);
 
-  return (
-    <Link href={`/pokemon/${pokeData.id}`}>
-      <div
-        className={`PokeCard relative rounded-xl ${colorClass} shadow-md  text-yellow-50 relative flex flex-row justify-between p-4 h-32`}>
-        <div className="PokeCard_text w-1/2  flex flex-col  ">
-          <span className="PokeId absolute right-3 top-2 ">
-            #{pokeData.id.toString().padStart(3, "0")}{" "}
-          </span>
-          <h3 className="font-bold capitalize mb-2  ">{pokeData.name}</h3>
-          <div className="pokeTypes flex flex-col">
-            {pokeData.types.map((t) => (
-              <span
-                key={t.type.name}
-                className={` border-2 border-yellow-50 rounded-full text-xs text-center capitalize font-semibold p-1 mb-2 w-5/6 ${getColorType(
-                  t.type.name
-                )}  `}>
-                {t.type.name}
-              </span>
-            ))}
-          </div>
-        </div>
-        <img
-          className="object-cover  right-0 h-20 w-20 mt-4 "
-          src={pokeData.sprites.front_default}
-          alt={pokeData.name}
-        />
+    return (
+      <div>
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <>
+            <Link
+              onClick={() => setclicked(true)}
+              href={`/pokemon/${pokeData.id}`}>
+              <div
+                className={` flex flex-col justify-center p-4 rounded-xl text-yellow-50 ${colorClass}`}>
+                <span>#{("000" + pokeData.id).slice(-4)} </span>
+                <h2 className=" font-bold capitalize text-center ">
+                  {pokeData.name}
+                </h2>
+                <img
+                  src={
+                    pokeData.sprites.front_default ||
+                    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokeData.id}.png`
+                  }
+                  alt={pokeData.name}
+                />
+                {clicked ? (
+                  <span className="m-3">Loading...</span>
+                ) : (
+                  <>
+                    <ul className="flex flex-wrap">
+                      {pokeData?.types.map((type) => (
+                        <li
+                          className={`p-1 px-2 m-1 capitalize w-auto inline rounded-lg border-2 border-white  ${getColorType(
+                            type.type.name
+                          )}`}
+                          key={type.type.name}>
+                          {type.type.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            </Link>
+          </>
+        )}
       </div>
-    </Link>
-  );
+    );
+  }
 }
