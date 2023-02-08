@@ -113,6 +113,7 @@ export default async function NotesPage({ params }) {
         </span>
       </header>
       <img
+        style={{ maxWidth: "30vw" }}
         className="rounded-3xl w-3/4 z-10"
         src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${params.id}.png`}
         alt="pokemon"
